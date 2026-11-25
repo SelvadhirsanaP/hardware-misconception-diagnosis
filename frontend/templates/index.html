@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hardware Misconception Diagnosis | Verilog Learning Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">⚙</span>
+      <div>
+        <h1>Hardware Misconception Diagnosis</h1>
+        <p>AI-assisted Verilog HDL debugging for students</p>
+      </div>
+    </div>
+    
+  </header>
+
+  <main class="container">
+    <section class="intro card">
+      <h2>Understand your hardware mistakes, don't just see error messages</h2>
+      <p>Paste or upload Verilog code. The app runs <strong>Icarus Verilog</strong> and <strong>Yosys</strong>,
+         finds problems such as unintended latches and multiple drivers, and explains
+         <em>why</em> they happen in beginner-friendly language. Your code is never changed.</p>
+    </section>
+
+    <section class="dashboard" id="dashboard">
+      <div class="stat"><span class="stat-label">Compilation</span><span class="stat-value" id="stCompile">—</span></div>
+      <div class="stat"><span class="stat-label">Synthesis check</span><span class="stat-value" id="stSynth">—</span></div>
+      <div class="stat"><span class="stat-label">Issues found</span><span class="stat-value" id="stIssues">—</span></div>
+      <div class="stat"><span class="stat-label">Confirmed / Potential</span><span class="stat-value" id="stConf">—</span></div>
+    </section>
+
+    <section class="workspace">
+      <div class="card editor-card">
+        <div class="card-head">
+          <h3>Verilog code</h3>
+          <div class="controls">
+            <select id="sampleSelect" aria-label="Load a sample"><option value="">Load a sample…</option></select>
+            <label class="btn btn-ghost" for="fileInput">Upload .v file</label>
+            <input type="file" id="fileInput" accept=".v,.sv" hidden>
+          </div>
+        </div>
+        <p class="hint" id="sampleHint"></p>
+        <div class="editor">
+          <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
+          <textarea id="codeInput" spellcheck="false" wrap="off" placeholder="module my_design(input a, output y);&#10;  assign y = a;&#10;endmodule"></textarea>
+        </div>
+
+        <details class="tb-details">
+          <summary>Optional: testbench for functional checks</summary>
+          <p class="hint">A testbench lets the real simulator run your design. It should print a line containing
+            <code>FAIL</code>, <code>ERROR</code> or <code>MISMATCH</code> when the output is wrong and end with <code>$finish;</code>.
+            The tools cannot know what your circuit <em>should</em> do - only your testbench can say that.</p>
+          <textarea id="tbInput" class="tb" spellcheck="false" wrap="off" placeholder="module my_tb; ... endmodule"></textarea>
+        </details>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="analyzeBtn">Analyze Code</button>
+          <button class="btn btn-ghost" id="clearBtn">Clear Code</button>
+          <label class="check"><input type="checkbox" id="useAi" checked> Use AI explanations (if configured)</label>
+        </div>
+        <div class="error-box" id="errorBox" role="alert" hidden></div>
+      </div>
+
+      <div class="card results-card" id="resultsCard">
+        <div class="card-head">
+          <h3>Analysis results</h3>
+          <form id="reportForm" method="post" action="/report" target="_blank" hidden>
+            <input type="hidden" name="code" id="reportCode">
+            <input type="hidden" name="testbench" id="reportTb">
+            <input type="hidden" name="use_ai" id="reportAi">
+            <button class="btn btn-ghost" type="submit">Open printable report</button>
+          </form>
+        </div>
+        <div id="results"><p class="placeholder">Results will appear here after you click <strong>Analyze Code</strong>.</p></div>
+      </div>
+    </section>
+  </main>
+
+  
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

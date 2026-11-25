@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analysis report | Hardware Misconception Diagnosis</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="report">
+  <main class="container">
+    <h1>Hardware Misconception Diagnosis - Report</h1>
+    <p><a href="/">&larr; Back to the analyzer</a> · <a href="#" onclick="window.print();return false;">Print</a></p>
+
+    {% if error %}
+      <div class="error-box">{{ error }}</div>
+    {% else %}
+      <section class="dashboard">
+        <div class="stat"><span class="stat-label">Compilation</span><span class="stat-value">{{ result.status.compilation|replace('_',' ') }}</span></div>
+        <div class="stat"><span class="stat-label">Synthesis check</span><span class="stat-value">{{ result.status.synthesis|replace('_',' ') }}</span></div>
+        <div class="stat"><span class="stat-label">Issues</span><span class="stat-value">{{ result.counts.total }}</span></div>
+        <div class="stat"><span class="stat-label">Confirmed / Potential</span><span class="stat-value">{{ result.counts.confirmed }} / {{ result.counts.potential }}</span></div>
+      </section>
+      <div class="card"><h3>Summary</h3><p>{{ result.summary }}</p>
+        {% for w in result.warnings %}<p class="warn-line">⚠ {{ w }}</p>{% endfor %}
+        <p class="hint">{{ result.disclaimer }}</p><p class="hint">AI: {{ result.ai.note }}</p></div>
+
+      {% for issue in result.issues %}
+      <article class="card issue sev-{{ issue.severity }}">
+        <div class="issue-head">
+          <span class="badge b-{{ issue.severity }}">{{ issue.severity }}</span>
+          <span class="badge {{ 'b-confirmed' if issue.confidence == 'confirmed' else 'b-potential' }}">
+            {{ 'Confirmed by ' ~ issue.source if issue.confidence == 'confirmed' else 'Potential (heuristic)' }}</span>
+          <strong>{{ issue.category }}</strong>
+          {% if issue.lines %}<span class="muted">line {{ issue.lines|join(', ') }}</span>{% endif %}
+        </div>
+        <p>{{ issue.message }}</p>
+        {% if issue.snippet %}<h4>Original code</h4><pre class="code">{{ issue.snippet.code }}</pre>{% endif %}
+        <h4>Explanation</h4>
+        <ul>
+          <li><b>What it means:</b> {{ issue.explanation.meaning }}</li>
+          <li><b>Why it happened:</b> {{ issue.explanation.cause }}</li>
+          <li><b>Responsible code:</b> {{ issue.explanation.responsible_code }}</li>
+          <li><b>Hardware concept:</b> {{ issue.explanation.concept }}</li>
+          <li><b>Beginner tip:</b> {{ issue.explanation.beginner_tip }}</li>
+        </ul>
+        <h4>Suggested correction</h4>
+        <p>{{ issue.correction.suggestion }}</p>
+        {% if issue.correction.corrected_code %}<pre class="code fixed">{{ issue.correction.corrected_code }}</pre>
+        {% else %}<p class="muted">No automatic code template for this item.</p>{% endif %}
+        <p><b>Reason:</b> {{ issue.correction.reason }}</p>
+        <p class="hint">{{ issue.correction.note }}</p>
+      </article>
+      {% else %}
+      <div class="card ok-box">✔ No issues were detected by the checks that ran.</div>
+      {% endfor %}
+
+      <details class="card"><summary>Raw tool output</summary>
+        {% for name in ['iverilog','yosys'] %}{% set rep = result.raw_reports[name] %}
+          <h4>{{ name }}</h4>
+          {% if rep %}<pre class="code">{{ rep.command }}
+{{ rep.stdout }}{{ rep.stderr }}</pre>{% else %}<p class="muted">Tool not run.</p>{% endif %}
+        {% endfor %}
+      </details>
+    {% endif %}
+    <h3>Submitted code</h3><pre class="code">{{ code }}</pre>
+  </main>
+</body>
+</html>

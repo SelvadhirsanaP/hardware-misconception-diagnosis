@@ -1,0 +1,50 @@
+{
+  "cases": [
+    {
+      "id": "valid",
+      "title": "Valid design (mux + counter)",
+      "file": "valid_verilog.v",
+      "testbench": null,
+      "expected_behavior": "Compiles without errors. No latch, no multiple drivers, no warnings about the design.",
+      "expected_static": [],
+      "expected_with_tools": []
+    },
+    {
+      "id": "syntax",
+      "title": "Syntax error (missing semicolon)",
+      "file": "syntax_error.v",
+      "testbench": null,
+      "expected_behavior": "Icarus Verilog reports a syntax error near line 4-5. Yosys fails to parse the file as well.",
+      "expected_static": ["Syntax error"],
+      "expected_with_tools": ["Syntax error"]
+    },
+    {
+      "id": "latch",
+      "title": "Unintended latch",
+      "file": "latch_example.v",
+      "testbench": null,
+      "expected_behavior": "Compiles, but Yosys prints 'Latch inferred for signal q'.",
+      "expected_static": ["Incomplete combinational assignment"],
+      "expected_with_tools": ["Unintended latch"]
+    },
+    {
+      "id": "multi",
+      "title": "Multiple drivers",
+      "file": "multiple_driver_example.v",
+      "testbench": null,
+      "expected_behavior": "Compiles in Icarus Verilog (it resolves the conflict), but Yosys 'check' reports multiple conflicting drivers for y.",
+      "expected_static": ["Multiple drivers"],
+      "expected_with_tools": ["Multiple drivers"]
+    },
+    {
+      "id": "comb",
+      "title": "Incorrect combinational assignment (bad sensitivity list)",
+      "file": "incorrect_combinational.v",
+      "testbench": "testbenches/mux_wrong_tb.v",
+      "expected_behavior": "Compiles and synthesises without errors. The incomplete sensitivity list is a heuristic finding; the testbench prints FAIL because y does not follow b when sel=1.",
+      "expected_static": ["Potential combinational logic issue"],
+      "expected_with_tools": ["Potential combinational logic issue"],
+      "expected_with_testbench": ["Functional mismatch (testbench)"]
+    }
+  ]
+}
